@@ -1,60 +1,70 @@
-const electron = require('electron')
-// Module to control application life.
-const app = electron.app
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
+const electron = require('electron');
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+const path = require('path');
+const url = require('url');
+const argp = require('argp');
+const events = require('events');
+// require('rpio');
+const Reader = require('./Reader');
 
-const path = require('path')
-const url = require('url')
+let reader = new Reader();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
 
-function createWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+let argv = argp.createParser({ once: true })
+    .description('Custom browser to use with PiUTT.')
+    .email('aurelien@labate.me')
+    .body()
+        .text('Option:')
+        .option({ short: 'u', long: 'url', metavar: 'URL', default: 'http://localhost:8080', description: 'Target url of the browser.'})
+        .option({ short: 'd', long: 'debug', description: 'Enable the debug mode : disable fullscreen and open Chromium DevTools.'})
+        .help()
+        .usage()
+    .argv();
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+app.on('ready', function() {
+	mainWindow = new BrowserWindow({
+        useContentSize: true,
+        kiosk: true,
+        autoHideMenuBar: true,
+        title: 'PiUTT',
+        webPreferences: {
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'preload.js')
+        }
+    })
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+    // Configure the window for debug mode
+    if(argv.debug) {
+    	mainWindow.webContents.openDevTools({mode: 'detach'});
+        mainWindow.setKiosk(false);
+        mainWindow.setSize(320, 240);
+    }
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
-  })
-}
+    // Set nfc reader events
+    reader.on('newTag', (studentId) => {
+        mainWindow.webContents.send('newTag', studentId);
+    });
+    reader.on('tagRemoved', () => {
+        mainWindow.webContents.send('tagRemoved');
+    });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+	// Load the target URI
+	mainWindow.loadURL(argv.url);
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.send('ping', 'Hello from browser\'s main.js !');
+    })
+
+	mainWindow.on('closed', function () {
+		mainWindow = null
+	})
+});
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
-
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+		app.quit();
+});

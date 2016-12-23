@@ -1,0 +1,13 @@
+{
+	"desfire" : {
+		"appId" : "FFFFFF",
+		"keyId" : 1,
+        "key"   : "ffffffffffffffffffffffffffffffff",
+        "file": 1
+    },
+    "classic": {
+        "file": 5,
+		"key": "ffffffffffff",
+		"keyType": "A"
+	}
+}

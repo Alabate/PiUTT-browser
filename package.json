@@ -1,22 +1,29 @@
 {
-  "name": "electron-quick-start",
+  "name": "PiUTT-Browser",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A browser for PiUTT that can read student cards with a nfc device",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/Alabate/PiUTT-browser",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "PiUTT",
+    "electron",
+    "nfc"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "Aurélien Labate <aurelien@labate.me>",
+  "license": "MIT",
   "devDependencies": {
-    "electron": "^1.4.1"
+    "electron": "^1.4.1",
+    "electron-rebuild": "^1.4.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Alabate/PiUTT-browser/issues"
+  },
+  "homepage": "https://github.com/Alabate/PiUTT-browser#readme",
+  "dependencies": {
+    "argp": "^1.0.4",
+    "freefare": "^0.1.1"
   }
 }
