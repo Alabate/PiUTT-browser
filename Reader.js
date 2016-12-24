@@ -17,6 +17,9 @@ class Reader extends EventEmitter {
         this.devices = [];
         this.studentID = null;
 
+        // An associative array of UID to sudentID
+        this.knownTags
+
 		this.freefare = new Freefare();
 		this.freefare.listDevices()
 		.then(devices => {
@@ -51,7 +54,7 @@ class Reader extends EventEmitter {
 		let watchdog = setTimeout(() => {
 			console.warn('Warning: Reader.check() hasn\'t stop the timeout. Restarting Reader.check()...');
 			this.check();
-		}, 5000);
+		}, 3000);
 
         // Number of device that are till working
         let devicesLeft = this.devices.length;
@@ -69,7 +72,7 @@ class Reader extends EventEmitter {
                             .then(() => {
                                 // -----------
                                 console.log(tag.getUID()+': Authenticate');
-                                return tag.authenticate(Config.classic.file, new Buffer(Config.classic.key, hex), Config.classic.keyTpe);
+                                return tag.authenticate(Config.classic.file, new Buffer(Config.classic.key, 'hex'), Config.classic.keyType);
                             })
                             .then(() => {
                                 // -----------
