@@ -3,6 +3,3 @@ Object.defineProperty(window, 'ipc', {
 		return require('electron').ipcRenderer;
 	}
 });
-setInterval(function () {
-	console.log('hello');
-}, 1000);
